@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Honed\Flash;
 
+use Honed\Flash\Contracts\Message as MessageContract;
 use Honed\Flash\Facades\Flash;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +20,11 @@ class FlashServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__.'/../config/flash.php', 'flash');
+
+        /** @var class-string<\Honed\Flash\Contracts\Message> */
+        $implementation = config('flash.implementation', Message::class);
+
+        $this->app->bind(MessageContract::class, $implementation);
     }
 
     /**
@@ -35,7 +41,6 @@ class FlashServiceProvider extends ServiceProvider
         $this->registerMiddlewareAlias();
         $this->registerRedirectResponseMacros();
         $this->registerInertiaMacros();
-
     }
 
     /**
@@ -52,14 +57,12 @@ class FlashServiceProvider extends ServiceProvider
     protected function registerRedirectResponseMacros(): void
     {
         RedirectResponse::macro('flash', function (
-            string|Message $message,
+            string|MessageContract $message,
             ?string $type = null,
-            ?string $title = null,
             ?int $duration = null,
-            array $meta = []
         ) {
             /** @var \Illuminate\Http\RedirectResponse $this */
-            Flash::message($message, $type, $title, $duration, $meta);
+            Flash::message($message, $type, $duration);
 
             return $this;
         });
@@ -71,27 +74,23 @@ class FlashServiceProvider extends ServiceProvider
     protected function registerInertiaMacros(): void
     {
         ResponseFactory::macro('flash', function (
-            string|Message $message,
+            string|MessageContract $message,
             ?string $type = null,
-            ?string $title = null,
             ?int $duration = null,
-            array $meta = []
         ) {
             /** @var \Inertia\ResponseFactory $this */
-            Flash::message($message, $type, $title, $duration, $meta);
+            Flash::message($message, $type, $duration);
 
             return $this;
         });
 
         Response::macro('flash', function (
-            string|Message $message,
+            string|MessageContract $message,
             ?string $type = null,
-            ?string $title = null,
             ?int $duration = null,
-            array $meta = []
         ) {
             /** @var \Inertia\ResponseFactory $this */
-            Flash::message($message, $type, $title, $duration, $meta);
+            Flash::message($message, $type, $duration);
 
             return $this;
         });

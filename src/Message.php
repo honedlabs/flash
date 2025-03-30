@@ -4,18 +4,16 @@ declare(strict_types=1);
 
 namespace Honed\Flash;
 
-use Honed\Core\Concerns\HasMeta;
 use Honed\Core\Concerns\HasType;
 use Honed\Core\Primitive;
+use Honed\Flash\Contracts\Message as MessageContract;
 use Honed\Flash\Support\Parameters;
 
-/**
- * @extends Primitive<string,mixed>
- */
-class Message extends Primitive
+class Message extends Primitive implements MessageContract
 {
-    use HasMeta;
-    use HasType;
+    use HasType {
+        getType as protected getBaseType;
+    }
 
     /**
      * The message for the flash.
@@ -43,24 +41,15 @@ class Message extends Primitive
      *
      * @param  string  $message
      * @param  string|null  $type
-     * @param  string|null  $title
      * @param  int|null  $duration
-     * @param  array<string,mixed>  $meta
      * @return static
      */
-    public static function make(
-        $message,
-        $type = null,
-        $title = null,
-        $duration = null,
-        $meta = []
-    ) {
+    public static function make($message, $type = null, $duration = null)
+    {
         return resolve(static::class)
             ->message($message)
             ->type($type)
-            ->title($title)
-            ->duration($duration)
-            ->meta($meta);
+            ->duration($duration);
     }
 
     /**
@@ -110,6 +99,27 @@ class Message extends Primitive
     }
 
     /**
+     * Get the type.
+     *
+     * @return string|null
+     */
+    public function getType()
+    {
+        return $this->getBaseType() ?? $this->getDefaultType();
+    }
+
+    /**
+     * Get the default type.
+     *
+     * @return string|null
+     */
+    public static function getDefaultType()
+    {
+        /** @var string|null */
+        return config('flash.type', null);
+    }
+
+    /**
      * Set the type to success.
      *
      * @return $this
@@ -150,17 +160,6 @@ class Message extends Primitive
     }
 
     /**
-     * Get the type from the config.
-     *
-     * @return string|null
-     */
-    public static function fallbackType()
-    {
-        /** @var string|null */
-        return config('flash.type', null);
-    }
-
-    /**
      * Set the duration.
      *
      * @param  int|null  $duration
@@ -180,15 +179,15 @@ class Message extends Primitive
      */
     public function getDuration()
     {
-        return $this->duration;
+        return $this->duration ?? $this->getDefaultDuration();
     }
 
     /**
-     * Get the duration from the config.
+     * Get the default duration.
      *
      * @return int|null
      */
-    public static function fallbackDuration()
+    public static function getDefaultDuration()
     {
         /** @var int|null */
         return config('flash.duration', Parameters::DURATION);
@@ -201,10 +200,9 @@ class Message extends Primitive
     {
         return [
             'message' => $this->getMessage(),
-            'type' => $this->getType() ?? $this->fallbackType(),
+            'type' => $this->getType(),
             'title' => $this->getTitle(),
-            'duration' => $this->getDuration() ?? $this->fallbackDuration(),
-            'meta' => $this->getMeta(),
+            'duration' => $this->getDuration(),
         ];
     }
 }

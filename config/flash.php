@@ -31,4 +31,15 @@ return [
     */
 
     'type' => null,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Class
+    |--------------------------------------------------------------------------
+    |
+    | Globally configure the concrete implementation of the flash message.
+    |
+    */
+
+    'implementation' => \Honed\Flash\Message::class,
 ];
