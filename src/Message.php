@@ -7,7 +7,6 @@ namespace Honed\Flash;
 use Honed\Core\Concerns\HasType;
 use Honed\Core\Primitive;
 use Honed\Flash\Contracts\Message as MessageContract;
-use Honed\Flash\Support\Parameters;
 
 class Message extends Primitive implements MessageContract
 {
@@ -50,6 +49,28 @@ class Message extends Primitive implements MessageContract
             ->message($message)
             ->type($type)
             ->duration($duration);
+    }
+
+    /**
+     * Get the default type.
+     *
+     * @return string|null
+     */
+    public static function getDefaultType()
+    {
+        /** @var string|null */
+        return config('flash.type', null);
+    }
+
+    /**
+     * Get the default duration.
+     *
+     * @return int|null
+     */
+    public static function getDefaultDuration()
+    {
+        /** @var int|null */
+        return config('flash.duration', 3000);
     }
 
     /**
@@ -109,24 +130,13 @@ class Message extends Primitive implements MessageContract
     }
 
     /**
-     * Get the default type.
-     *
-     * @return string|null
-     */
-    public static function getDefaultType()
-    {
-        /** @var string|null */
-        return config('flash.type', null);
-    }
-
-    /**
      * Set the type to success.
      *
      * @return $this
      */
     public function success()
     {
-        return $this->type(Parameters::SUCCESS);
+        return $this->type('success');
     }
 
     /**
@@ -136,7 +146,7 @@ class Message extends Primitive implements MessageContract
      */
     public function error()
     {
-        return $this->type(Parameters::ERROR);
+        return $this->type('error');
     }
 
     /**
@@ -146,7 +156,7 @@ class Message extends Primitive implements MessageContract
      */
     public function info()
     {
-        return $this->type(Parameters::INFO);
+        return $this->type('info');
     }
 
     /**
@@ -156,7 +166,7 @@ class Message extends Primitive implements MessageContract
      */
     public function warning()
     {
-        return $this->type(Parameters::WARNING);
+        return $this->type('warning');
     }
 
     /**
@@ -183,20 +193,9 @@ class Message extends Primitive implements MessageContract
     }
 
     /**
-     * Get the default duration.
-     *
-     * @return int|null
-     */
-    public static function getDefaultDuration()
-    {
-        /** @var int|null */
-        return config('flash.duration', Parameters::DURATION);
-    }
-
-    /**
      * {@inheritdoc}
      */
-    public function toArray()
+    public function toArray($named = [], $typed = [])
     {
         return [
             'message' => $this->getMessage(),

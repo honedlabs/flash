@@ -4,12 +4,7 @@ declare(strict_types=1);
 
 namespace Honed\Flash\Contracts;
 
-use Illuminate\Contracts\Support\Arrayable;
-
-/**
- * @extends Arrayable<string,mixed>
- */
-interface Message extends Arrayable
+interface Message
 {
     /**
      * Create a new flash message.
@@ -44,4 +39,13 @@ interface Message extends Arrayable
      * @return $this
      */
     public function duration($duration);
+
+    /**
+     * Get the array representation of the message.
+     *
+     * @param  array<string,mixed>  $named
+     * @param  array<string,mixed>  $typed
+     * @return array<string,mixed>
+     */
+    public function toArray($named = [], $typed = []);
 }
